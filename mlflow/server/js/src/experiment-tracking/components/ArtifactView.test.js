@@ -330,13 +330,7 @@ describe('ArtifactView', () => {
     const store = mockStore({
       entities: entities,
     });
-    wrapper = mount(
-      <Provider store={store}>
-        <BrowserRouter>
-          <ArtifactView {...props} />
-        </BrowserRouter>
-      </Provider>,
-    );
+    wrapper = getWrapper(store, props);
     const dir2Element = wrapper.find('NodeHeader').at(2);
     dir2Element.simulate('click');
     expect(wrapper.find('.artifact-info-path').html()).toContain('test_root/dir2');
