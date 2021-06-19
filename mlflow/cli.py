@@ -297,6 +297,20 @@ def _validate_static_prefix(ctx, param, value):  # pylint: disable=unused-argume
     return value
 
 
+def _validate_restapi_prefix(ctx, param, value):  # pylint: disable=unused-argument
+    """
+    Validate that the restapi_prefix option starts with a "/" and does not end in a "/".
+    Conforms to the callback interface of click documented at
+    http://click.pocoo.org/5/options/#callbacks-for-validation.
+    """
+    if value is not None:
+        if not value.startswith("/"):
+            raise UsageError("--restapi-prefix must begin with a '/'.")
+        if value.endswith("/"):
+            raise UsageError("--restapi-prefix should not end with a '/'.")
+    return value
+
+
 @cli.command()
 @click.option(
     "--backend-store-uri",
@@ -327,6 +341,12 @@ def _validate_static_prefix(ctx, param, value):  # pylint: disable=unused-argume
     help="A prefix which will be prepended to the path of all static paths.",
 )
 @click.option(
+    "--restapi-prefix",
+    default=None,
+    callback=_validate_restapi_prefix,
+    help="A prefix which will be prepended to the path of all rest api paths.",
+)
+@click.option(
     "--gunicorn-opts",
     default=None,
     help="Additional command line options forwarded to gunicorn processes.",
@@ -348,6 +368,7 @@ def server(
     port,
     workers,
     static_prefix,
+    restapi_prefix,
     gunicorn_opts,
     waitress_opts,
     expose_prometheus,
@@ -393,6 +414,7 @@ def server(
             host,
             port,
             static_prefix,
+            restapi_prefix,
             workers,
             gunicorn_opts,
             waitress_opts,

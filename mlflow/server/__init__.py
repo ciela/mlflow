@@ -9,6 +9,7 @@ from mlflow.server import handlers
 from mlflow.server.handlers import (
     get_artifact_handler,
     STATIC_PREFIX_ENV_VAR,
+    RESTAPI_PREFIX_ENV_VAR,
     _add_static_prefix,
     get_model_version_artifact_handler,
 )
@@ -108,6 +109,7 @@ def _run_server(
     host,
     port,
     static_prefix=None,
+    restapi_prefix=None,
     workers=None,
     gunicorn_opts=None,
     waitress_opts=None,
@@ -126,6 +128,8 @@ def _run_server(
         env_map[ARTIFACT_ROOT_ENV_VAR] = default_artifact_root
     if static_prefix:
         env_map[STATIC_PREFIX_ENV_VAR] = static_prefix
+    if restapi_prefix:
+        env_map[RESTAPI_PREFIX_ENV_VAR] = restapi_prefix
 
     if expose_prometheus:
         env_map[PROMETHEUS_EXPORTER_ENV_VAR] = expose_prometheus

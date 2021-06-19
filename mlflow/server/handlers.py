@@ -77,6 +77,7 @@ _logger = logging.getLogger(__name__)
 _tracking_store = None
 _model_registry_store = None
 STATIC_PREFIX_ENV_VAR = "_MLFLOW_STATIC_PREFIX"
+RESTAPI_PREFIX_ENV_VAR = "_MLFLOW_RESTAPI_PREFIX"
 
 
 class TrackingStoreRegistryWrapper(TrackingStoreRegistry):
@@ -805,13 +806,23 @@ def _add_static_prefix(route):
     return route
 
 
+def _add_restapi_prefix(route):
+    prefix = os.environ.get(RESTAPI_PREFIX_ENV_VAR)
+    if prefix:
+        return prefix + route
+    return route
+
+
 def _get_paths(base_path):
     """
     A service endpoints base path is typically something like /preview/mlflow/experiment.
     We should register paths like /api/2.0/preview/mlflow/experiment and
     /ajax-api/2.0/preview/mlflow/experiment in the Flask router.
     """
-    return ["/api/2.0{}".format(base_path), _add_static_prefix("/ajax-api/2.0{}".format(base_path))]
+    return [
+        _add_restapi_prefix("/api/2.0{}".format(base_path)),
+        _add_static_prefix("/ajax-api/2.0{}".format(base_path)),
+    ]
 
 
 def get_handler(request_class):

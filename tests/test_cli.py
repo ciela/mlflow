@@ -42,6 +42,23 @@ def test_server_static_prefix_validation():
         run_server_mock.assert_not_called()
 
 
+def test_server_restapi_prefix_validation():
+    with mock.patch("mlflow.server._run_server") as run_server_mock:
+        CliRunner().invoke(server)
+        run_server_mock.assert_called_once()
+    with mock.patch("mlflow.server._run_server") as run_server_mock:
+        CliRunner().invoke(server, ["--restapi-prefix", "/mlflow"])
+        run_server_mock.assert_called_once()
+    with mock.patch("mlflow.server._run_server") as run_server_mock:
+        result = CliRunner().invoke(server, ["--restapi-prefix", "mlflow/"])
+        assert "--restapi-prefix must begin with a '/'." in result.output
+        run_server_mock.assert_not_called()
+    with mock.patch("mlflow.server._run_server") as run_server_mock:
+        result = CliRunner().invoke(server, ["--restapi-prefix", "/mlflow/"])
+        assert "--restapi-prefix should not end with a '/'." in result.output
+        run_server_mock.assert_not_called()
+
+
 def test_server_default_artifact_root_validation():
     with mock.patch("mlflow.server._run_server") as run_server_mock:
         result = CliRunner().invoke(server, ["--backend-store-uri", "sqlite:///my.db"])
